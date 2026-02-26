@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Malika</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --crimson: #8B0000;
+    --crimson-light: #a31515;
+    --crimson-glow: #c41e1e;
+    --gold: #c9a84c;
+    --parchment: #1a0505;
+    --text: #f0dede;
+    --text-dim: #b08080;
+  }
+
+  body {
+    background: #0d0203;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* Particles */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: var(--crimson-glow);
+    border-radius: 50%;
+    opacity: 0;
+    animation: float-particle linear infinite;
+    box-shadow: 0 0 6px var(--crimson-glow);
+  }
+
+  @keyframes float-particle {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.4; }
+    100% { transform: translateY(-10vh) translateX(var(--drift)); opacity: 0; }
+  }
+
+  /* Rose petals */
+  .petal {
+    position: absolute;
+    width: 8px;
+    height: 12px;
+    background: radial-gradient(ellipse, #8B0000 0%, #5a0000 100%);
+    border-radius: 50% 50% 50% 0;
+    opacity: 0;
+    animation: fall-petal linear infinite;
+  }
+
+  @keyframes fall-petal {
+    0% { transform: translateY(-50px) rotate(var(--rot-start)) translateX(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    80% { opacity: 0.4; }
+    100% { transform: translateY(110vh) rotate(var(--rot-end)) translateX(var(--sway)); opacity: 0; }
+  }
+
+  /* Vignette */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, #0d0203 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Main container */
+  .scene {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    max-width: 680px;
+    width: 100%;
+  }
+
+  /* Title screen */
+  #title-screen {
+    text-align: center;
+    animation: fadeIn 2s ease forwards;
+  }
+
+  .title-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeIn 1s 0.5s ease forwards;
+  }
+
+  .title-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(52px, 12vw, 88px);
+    font-style: italic;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeIn 1.5s 1s ease forwards;
+    text-shadow: 0 0 60px rgba(139,0,0,0.4);
+  }
+
+  .title-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 24px auto;
+    opacity: 0;
+    animation: fadeIn 1s 2s ease forwards;
+  }
+
+  .title-divider::before,
+  .title-divider::after {
+    content: '';
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--crimson));
+  }
+
+  .title-divider::after {
+    background: linear-gradient(to left, transparent, var(--crimson));
+  }
+
+  .heart-icon {
+    color: var(--crimson-glow);
+    font-size: 18px;
+    animation: heartbeat 2s ease infinite;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+  }
+
+  .start-btn {
+    margin-top: 40px;
+    padding: 14px 44px;
+    background: transparent;
+    border: 1px solid var(--crimson);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    opacity: 0;
+    animation: fadeIn 1s 2.5s ease forwards;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .start-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--crimson);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+    z-index: -1;
+  }
+
+  .start-btn:hover::before { transform: scaleX(1); }
+  .start-btn:hover { border-color: var(--crimson-glow); letter-spacing: 6px; }
+
+  /* Letter */
+  #letter {
+    display: none;
+    width: 100%;
+  }
+
+  .envelope {
+    background: linear-gradient(145deg, #1a0505, #120303);
+    border: 1px solid rgba(139,0,0,0.3);
+    border-radius: 2px;
+    padding: 50px 56px;
+    position: relative;
+    box-shadow:
+      0 0 80px rgba(139,0,0,0.15),
+      inset 0 0 40px rgba(0,0,0,0.5);
+  }
+
+  .envelope::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(to right, transparent, var(--crimson), transparent);
+  }
+
+  .corner-ornament {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-color: rgba(139,0,0,0.4);
+    border-style: solid;
+    border-width: 0;
+  }
+  .corner-ornament.tl { top: 16px; left: 16px; border-top-width: 1px; border-left-width: 1px; }
+  .corner-ornament.tr { top: 16px; right: 16px; border-top-width: 1px; border-right-width: 1px; }
+  .corner-ornament.bl { bottom: 16px; left: 16px; border-bottom-width: 1px; border-left-width: 1px; }
+  .corner-ornament.br { bottom: 16px; right: 16px; border-bottom-width: 1px; border-right-width: 1px; }
+
+  .letter-date {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-align: right;
+    margin-bottom: 32px;
+    text-transform: uppercase;
+  }
+
+  .letter-greeting {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-style: italic;
+    color: var(--crimson-glow);
+    margin-bottom: 28px;
+  }
+
+  /* Paragraphs revealed one by one */
+  .letter-para {
+    font-size: 17px;
+    line-height: 1.9;
+    color: var(--text);
+    margin-bottom: 24px;
+    font-weight: 300;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .letter-para.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .letter-para em {
+    font-style: italic;
+    color: #e8c0c0;
+  }
+
+  .letter-signature {
+    margin-top: 40px;
+    text-align: right;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .letter-signature.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .sig-label {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .sig-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-style: italic;
+    color: var(--text);
+  }
+
+  .next-btn {
+    display: block;
+    margin: 32px auto 0;
+    padding: 12px 36px;
+    background: transparent;
+    border: 1px solid rgba(139,0,0,0.5);
+    color: var(--text-dim);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .next-btn:hover {
+    border-color: var(--crimson-glow);
+    color: var(--text);
+    box-shadow: 0 0 20px rgba(139,0,0,0.2);
+  }
+
+  .next-btn:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+  }
+
+  /* Final hearts */
+  .final-hearts {
+    display: none;
+    text-align: center;
+    margin-top: 40px;
+    animation: fadeIn 1s ease forwards;
+  }
+
+  .hearts-row {
+    font-size: 28px;
+    letter-spacing: 8px;
+    animation: pulse-hearts 2s ease infinite;
+  }
+
+  @keyframes pulse-hearts {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Canvas heart background */
+  #heartCanvas {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.85;
+  }
+
+  @media (max-width: 600px) {
+    .scene { padding: 24px 16px; }
+    .envelope { padding: 28px 20px; }
+    .letter-para { font-size: 16px; line-height: 1.85; }
+    .letter-greeting { font-size: 24px; }
+    .sig-name { font-size: 26px; }
+    .letter-date { font-size: 11px; }
+    .start-btn { padding: 18px 48px; font-size: 16px; margin-top: 36px; min-height: 56px; }
+    .next-btn { padding: 16px 40px; font-size: 14px; min-height: 52px; width: 100%; margin-top: 24px; }
+    .bg-heart { width: 92vw; height: 92vw; }
+    .title-name { font-size: clamp(56px, 18vw, 80px); }
+    .title-divider::before, .title-divider::after { width: 50px; }
+    .hearts-row { font-size: 32px; letter-spacing: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<canvas id="heartCanvas"></canvas>
+
+<div class="scene">
+  <!-- Title Screen -->
+  <div id="title-screen">
+    <div class="title-name">Malika</div>
+    <div class="title-divider">
+      <span class="heart-icon">♥</span>
+    </div>
+    <button class="start-btn" onclick="openLetter()">Abrir carta</button>
+  </div>
+
+  <!-- Letter -->
+  <div id="letter">
+    <div class="envelope">
+      <div class="corner-ornament tl"></div>
+      <div class="corner-ornament tr"></div>
+      <div class="corner-ornament bl"></div>
+      <div class="corner-ornament br"></div>
+
+      <div class="letter-date" id="letter-date"></div>
+
+      <div class="letter-greeting">Minha princesa,</div>
+
+      <div class="letter-para" id="p1">
+        <!-- MENSAGEM 1 — edite aqui -->
+        Acho que você nunca vai entender completamente o quanto eu te amo e tudo que eu sinto por você. Afinal, é inexplicavel, nem eu consigo explicar.
+      </div>
+
+      <div class="letter-para" id="p2">
+        <!-- MENSAGEM 2 — edite aqui -->
+       Você foi e vem sendo a melhor coisa que me aconteceu, minha escolha certa. Com você do lado, me sinto seguro, sinto que estou fazendo a coisa certa, pela primera vez.
+      </div>
+
+      <div class="letter-para" id="p3">
+        <!-- MENSAGEM 3 — edite aqui -->
+        Os momentos ao seu lado, seja aqui ou fora daqui, são os melhores. As vezes desejo que nunca acabe, que você fique comigo para sempre, mas, logo menos.
+      </div>
+
+      <div class="letter-para" id="p4">
+        <!-- MENSAGEM 4 — edite aqui -->
+        Não tenho muito o que dizer, só agradecer. Obrigado por ficar, por me escolher, por ser você. Somos eternos, gatinha. Nem depois da morte quero me separar de você, não sinto que isso vai ficar só aqui, te quero para sempre, nessa e nas próximas vidas.
+      </div>
+
+      <div class="letter-signature" id="sig">
+        <div class="sig-label">Com todo meu amor</div>
+        <div class="sig-name">Seu rlk bandido 1533 igota ♥</div>
+      </div>
+    </div>
+
+    <button class="next-btn" id="next-btn" onclick="revealNext()">Continuar lendo ↓</button>
+
+    <div class="final-hearts" id="final-hearts">
+      <div class="hearts-row">♥ ♥ ♥ ♥ ♥</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- Particles ---
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random()*100}%;
+      --drift: ${(Math.random()-0.5)*100}px;
+      animation-duration: ${6 + Math.random()*10}s;
+      animation-delay: ${Math.random()*10}s;
+      width: ${2+Math.random()*3}px;
+      height: ${2+Math.random()*3}px;
+    `;
+    container.appendChild(p);
+  }
+
+  // Rose petals
+  for (let i = 0; i < 15; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.cssText = `
+      left: ${Math.random()*100}%;
+      --rot-start: ${Math.random()*360}deg;
+      --rot-end: ${Math.random()*720}deg;
+      --sway: ${(Math.random()-0.5)*200}px;
+      animation-duration: ${8 + Math.random()*12}s;
+      animation-delay: ${Math.random()*15}s;
+    `;
+    container.appendChild(p);
+  }
+
+  // --- Heart Canvas: text grid filling heart shape, neon glow on edges ---
+  const hCanvas = document.getElementById('heartCanvas');
+  const hCtx = hCanvas.getContext('2d');
+  const SIZE = Math.min(window.innerWidth, window.innerHeight, 580);
+  hCanvas.width  = SIZE;
+  hCanvas.height = SIZE;
+
+  const FS = SIZE < 400 ? 10 : 12;
+  const LINE_H = FS * 1.7;
+  const CHAR_W = FS * 0.58;
+
+  const CX = SIZE / 2;
+  const CY = SIZE / 2 + SIZE * 0.04;
+  const SCALE = SIZE * 0.036;
+
+  function hx(t) { return 16 * Math.pow(Math.sin(t), 3); }
+  function hy(t) { return -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)); }
+
+  // Build dense outline point list
+  const STEPS = 2000;
+  const outline = [];
+  for (let i = 0; i < STEPS; i++) {
+    const t = (i / STEPS) * Math.PI * 2;
+    outline.push({ x: CX + hx(t) * SCALE, y: CY + hy(t) * SCALE });
+  }
+
+  // For each scanline y, find min/max x on the heart outline
+  const yMin = Math.min(...outline.map(p => p.y));
+  const yMax = Math.max(...outline.map(p => p.y));
+
+  // Build cells via scanline
+  const NAME1 = 'Igor Davi ';
+  const NAME2 = 'Malika    ';
+  const NAMES = [NAME1, NAME2];
+  const cells = [];
+  let lineNum = 0;
+
+  for (let y = yMin + LINE_H * 0.5; y < yMax; y += LINE_H) {
+    // Find all outline x values near this y
+    const xs = [];
+    for (let i = 0; i < STEPS; i++) {
+      const a = outline[i], b = outline[(i+1) % STEPS];
+      if ((a.y <= y && b.y > y) || (b.y <= y && a.y > y)) {
+        // linear interpolation to find x crossing
+        const frac = (y - a.y) / (b.y - a.y);
+        xs.push(a.x + frac * (b.x - a.x));
+      }
+    }
+    if (xs.length < 2) { lineNum++; continue; }
+    const xLeft  = Math.min(...xs);
+    const xRight = Math.max(...xs);
+
+    const name = NAMES[lineNum % 2];
+    const rowWidth = CHAR_W * name.length;
+    const xOff = (lineNum % 2 === 0) ? 0 : CHAR_W * 2;
+
+    for (let x = xLeft + xOff; x + CHAR_W < xRight; x += rowWidth) {
+      for (let ci = 0; ci < name.length; ci++) {
+        const cx2 = x + ci * CHAR_W;
+        if (cx2 > xLeft && cx2 < xRight) {
+          cells.push({ x: cx2, y, char: name[ci] });
+        }
+      }
+    }
+    lineNum++;
+  }
+
+  // Pre-compute edge distance for each cell
+  const edgeThresh = SCALE * 2.8;
+  for (const c of cells) {
+    let minD = Infinity;
+    for (let i = 0; i < STEPS; i += 4) {
+      const dx = c.x - outline[i].x;
+      const dy = c.y - outline[i].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < minD) minD = d;
+    }
+    c.edge = Math.max(0, 1 - minD / edgeThresh);
+    c.born = 0;       // frame when this cell starts appearing
+    c.fadeIn = 0;     // 0→1 fade progress
+  }
+
+  // Assign staggered birth frames — cells appear gradually, top to bottom
+  const totalDuration = 180; // frames (~3s at 60fps)
+  const sortedCells = [...cells].sort((a, b) => a.y - b.y || a.x - b.x);
+  sortedCells.forEach((c, i) => {
+    c.born = Math.floor((i / sortedCells.length) * totalDuration);
+  });
+
+  let frame = 0;
+
+  function drawHeart() {
+    hCtx.clearRect(0, 0, SIZE, SIZE);
+    frame++;
+    const time = frame * 0.018;
+
+    for (const c of cells) {
+      if (frame < c.born) continue;
+
+      // Fade in over ~30 frames after born
+      c.fadeIn = Math.min(1, (frame - c.born) / 30);
+
+      const e = c.edge;
+      const pulse = e > 0.35
+        ? 0.75 + 0.25 * Math.sin(time * 2.2 + c.x * 0.06)
+        : 0.3  + 0.12 * Math.sin(time * 1.1 + c.y * 0.04);
+
+      const baseAlpha = (e > 0.35 ? 0.8 : 0.28) * pulse;
+      const alpha = Math.min(1, baseAlpha * c.fadeIn);
+
+      const r = Math.round(180 + e * 75);
+      const g = Math.round(15  + e * 45);
+      const b = Math.round(75  + e * 55);
+
+      hCtx.save();
+      hCtx.globalAlpha = alpha;
+      hCtx.shadowBlur  = e > 0.35 ? 8 + e * 16 : 2;
+      hCtx.shadowColor = `rgba(255,50,110,${e * 0.95})`;
+      hCtx.fillStyle   = `rgb(${r},${g},${b})`;
+      hCtx.font        = `italic ${FS}px Georgia, serif`;
+      hCtx.fillText(c.char, c.x, c.y);
+      hCtx.restore();
+    }
+
+    hCtx.shadowBlur  = 0;
+    hCtx.globalAlpha = 1;
+    requestAnimationFrame(drawHeart);
+  }
+
+  drawHeart();
+  document.getElementById('letter-date').textContent =
+    new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Reveal logic
+  const paragraphs = ['p1','p2','p3','p4','sig'];
+  let revealed = 0;
+
+  function openLetter() {
+    document.getElementById('title-screen').style.display = 'none';
+    const letter = document.getElementById('letter');
+    letter.style.display = 'block';
+    letter.style.animation = 'fadeIn 1s ease forwards';
+    setTimeout(() => revealNext(), 400);
+  }
+
+  function revealNext() {
+    if (revealed >= paragraphs.length) return;
+    const el = document.getElementById(paragraphs[revealed]);
+    el.classList.add('visible');
+    revealed++;
+
+    if (revealed >= paragraphs.length) {
+      const btn = document.getElementById('next-btn');
+      btn.style.display = 'none';
+      document.getElementById('final-hearts').style.display = 'block';
+    }
+
+    // Smooth scroll
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+  }
+</script>
+</body>
+</html>
